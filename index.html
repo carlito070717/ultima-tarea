@@ -40,10 +40,13 @@
         
         <div class="section card">
             <div class="section-header">
-                <h3>💬 Mensaje a Encriptar</h3>
+                <h3>💬 Texto de Entrada</h3>
             </div>
-            <label for="mensaje" class="input-label">Ingresa tu mensaje (máximo 30 caracteres)</label>
-            <textarea id="mensaje" maxlength="30" placeholder="Escribe aquí tu mensaje secreto..."></textarea>
+            <label for="mensaje" class="input-label">Escribe el texto para encriptar o desencriptar (máximo 30 caracteres)</label>
+            <div class="info-box">
+                <strong>⚠️ IMPORTANTE:</strong> Para <strong>encriptar</strong> escribe texto normal. Para <strong>desencriptar</strong> debes escribir texto YA encriptado.
+            </div>
+            <textarea id="mensaje" maxlength="30" placeholder="Escribe aquí tu mensaje..."></textarea>
             <div class="char-count">
                 <span id="charCounter">0</span>/30 caracteres
             </div>
@@ -96,9 +99,14 @@
                 <h3 id="resultadoTitle">✨ Resultado</h3>
             </div>
             <div id="resultado" class="resultado-box"></div>
-            <button id="copiar" class="btn-copiar hidden">
-                📋 Copiar Resultado
-            </button>
+            <div class="resultado-actions">
+                <button id="copiar" class="btn-copiar hidden">
+                    📋 Copiar Resultado
+                </button>
+                <button id="usarResultado" class="btn-usar hidden">
+                    ↩️ Usar este resultado
+                </button>
+            </div>
         </div>
     </div>
 
@@ -106,6 +114,6 @@
         <p>Desarrollado con 💚 para Fundamentos de Álgebra</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2.0"></script>
 </body>
 </html>

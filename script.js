@@ -12,13 +12,13 @@ const resultado = document.getElementById('resultado');
 const resultadoSection = document.getElementById('resultadoSection');
 const resultadoTitle = document.getElementById('resultadoTitle');
 const btnCopiar = document.getElementById('copiar');
+const btnUsarResultado = document.getElementById('usarResultado');
 
 // Actualizar contador de caracteres
 mensaje.addEventListener('input', () => {
     const len = mensaje.value.length;
     charCounter.textContent = len;
     
-    // Cambiar color según proximidad al límite
     if (len > 25) {
         charCounter.style.color = '#ef4444';
     } else if (len > 20) {
@@ -41,12 +41,10 @@ function mostrarMatrizMensaje() {
     
     const valores = texto.split('').map(char => char.charCodeAt(0) - 65);
     
-    // Agregar padding si es impar
     if (valores.length % 2 !== 0) {
-        valores.push(23); // 'X' = 23
+        valores.push(23);
     }
     
-    // Crear matriz visual
     let matrizHTML = '<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">';
     
     for (let i = 0; i < valores.length; i += 2) {
@@ -77,9 +75,42 @@ function mostrarMatrizMensaje() {
     });
 });
 
-// Función de encriptación Hill
+// Función para calcular el inverso modular
+function modInverso(a, m) {
+    a = ((a % m) + m) % m;
+    for (let x = 1; x < m; x++) {
+        if ((a * x) % m === 1) {
+            return x;
+        }
+    }
+    return null;
+}
+
+// Función para calcular la matriz inversa módulo 26
+function matrizInversa(key) {
+    let det = key[0][0] * key[1][1] - key[0][1] * key[1][0];
+    det = ((det % 26) + 26) % 26;
+    
+    const detInv = modInverso(det, 26);
+    if (detInv === null) {
+        return null;
+    }
+    
+    const adj = [
+        [key[1][1], -key[0][1]],
+        [-key[1][0], key[0][0]]
+    ];
+    
+    const inv = [
+        [((adj[0][0] * detInv) % 26 + 26) % 26, ((adj[0][1] * detInv) % 26 + 26) % 26],
+        [((adj[1][0] * detInv) % 26 + 26) % 26, ((adj[1][1] * detInv) % 26 + 26) % 26]
+    ];
+    
+    return inv;
+}
+
+// Evento del botón Encriptar
 btnEncriptar.addEventListener('click', () => {
-    // Mostrar animación de carga en el botón
     btnEncriptar.innerHTML = '<span class="btn-icon">⏳</span><span>Procesando...</span>';
     btnEncriptar.disabled = true;
     btnDesencriptar.disabled = true;
@@ -92,9 +123,8 @@ btnEncriptar.addEventListener('click', () => {
     }, 500);
 });
 
-// Función de desencriptación Hill
+// Evento del botón Desencriptar
 btnDesencriptar.addEventListener('click', () => {
-    // Mostrar animación de carga en el botón
     btnDesencriptar.innerHTML = '<span class="btn-icon">⏳</span><span>Procesando...</span>';
     btnDesencriptar.disabled = true;
     btnEncriptar.disabled = true;
@@ -107,8 +137,8 @@ btnDesencriptar.addEventListener('click', () => {
     }, 500);
 });
 
+// Función de encriptación
 function encriptarMensaje() {
-    // Validar inputs de la matriz
     const key = [
         [parseInt(k11.value) || 0, parseInt(k12.value) || 0],
         [parseInt(k21.value) || 0, parseInt(k22.value) || 0]
@@ -126,7 +156,6 @@ function encriptarMensaje() {
         return;
     }
     
-    // Calcular determinante
     const det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
     
     if (det === 0) {
@@ -134,26 +163,22 @@ function encriptarMensaje() {
         return;
     }
     
-    // Convertir texto a números
     let numeros = texto.split('').map(char => char.charCodeAt(0) - 65);
     
-    // Agregar padding si es impar
     if (numeros.length % 2 !== 0) {
-        numeros.push(23); // 'X'
+        numeros.push(23);
     }
     
-    // Encriptar
     let encriptado = '';
     for (let i = 0; i < numeros.length; i += 2) {
         const v1 = numeros[i];
         const v2 = numeros[i + 1];
         
-        let c1 = (key[0][0] * v1 + key[0][1] * v2) % 26;
-        let c2 = (key[1][0] * v1 + key[1][1] * v2) % 26;
+        let c1 = (key[0][0] * v1 + key[0][1] * v2);
+        let c2 = (key[1][0] * v1 + key[1][1] * v2);
         
-        // Asegurar valores positivos
-        if (c1 < 0) c1 += 26;
-        if (c2 < 0) c2 += 26;
+        c1 = ((c1 % 26) + 26) % 26;
+        c2 = ((c2 % 26) + 26) % 26;
         
         encriptado += String.fromCharCode(65 + c1);
         encriptado += String.fromCharCode(65 + c2);
@@ -162,48 +187,8 @@ function encriptarMensaje() {
     mostrarResultado(encriptado, 'encriptación');
 }
 
-// Función para calcular el inverso modular
-function modInverso(a, m) {
-    a = ((a % m) + m) % m;
-    for (let x = 1; x < m; x++) {
-        if ((a * x) % m === 1) {
-            return x;
-        }
-    }
-    return null;
-}
-
-// Función para calcular la matriz inversa módulo 26
-function matrizInversa(key) {
-    // Calcular determinante
-    let det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
-    if (det < 0) det += 26;
-    
-    // Calcular inverso del determinante
-    const detInv = modInverso(det, 26);
-    
-    if (detInv === null) {
-        return null;
-    }
-    
-    // Calcular matriz adjunta y multiplicar por inverso del determinante
-    const inv = [
-        [(key[1][1] * detInv) % 26, (-key[0][1] * detInv) % 26],
-        [(-key[1][0] * detInv) % 26, (key[0][0] * detInv) % 26]
-    ];
-    
-    // Asegurar valores positivos
-    for (let i = 0; i < 2; i++) {
-        for (let j = 0; j < 2; j++) {
-            if (inv[i][j] < 0) inv[i][j] += 26;
-        }
-    }
-    
-    return inv;
-}
-
+// Función de desencriptación
 function desencriptarMensaje() {
-    // Validar inputs de la matriz
     const key = [
         [parseInt(k11.value) || 0, parseInt(k12.value) || 0],
         [parseInt(k21.value) || 0, parseInt(k22.value) || 0]
@@ -221,15 +206,13 @@ function desencriptarMensaje() {
         return;
     }
     
-    // Calcular determinante
-    const det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
+    const det = ((key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26 + 26) % 26;
     
     if (det === 0) {
         mostrarError('⚠️ Error: La matriz no es invertible (determinante = 0 mod 26)');
         return;
     }
     
-    // Calcular matriz inversa
     const keyInv = matrizInversa(key);
     
     if (keyInv === null) {
@@ -237,26 +220,22 @@ function desencriptarMensaje() {
         return;
     }
     
-    // Convertir texto a números
     let numeros = texto.split('').map(char => char.charCodeAt(0) - 65);
     
-    // Agregar padding si es impar
     if (numeros.length % 2 !== 0) {
-        numeros.push(23); // 'X'
+        numeros.push(23);
     }
     
-    // Desencriptar
     let desencriptado = '';
     for (let i = 0; i < numeros.length; i += 2) {
         const c1 = numeros[i];
         const c2 = numeros[i + 1];
         
-        let v1 = (keyInv[0][0] * c1 + keyInv[0][1] * c2) % 26;
-        let v2 = (keyInv[1][0] * c1 + keyInv[1][1] * c2) % 26;
+        let v1 = (keyInv[0][0] * c1 + keyInv[0][1] * c2);
+        let v2 = (keyInv[1][0] * c1 + keyInv[1][1] * c2);
         
-        // Asegurar valores positivos
-        if (v1 < 0) v1 += 26;
-        if (v2 < 0) v2 += 26;
+        v1 = ((v1 % 26) + 26) % 26;
+        v2 = ((v2 % 26) + 26) % 26;
         
         desencriptado += String.fromCharCode(65 + v1);
         desencriptado += String.fromCharCode(65 + v2);
@@ -265,46 +244,48 @@ function desencriptarMensaje() {
     mostrarResultado(desencriptado, 'desencriptación');
 }
 
-function mostrarError(mensaje) {
+// Mostrar error
+function mostrarError(mensajeError) {
     resultado.classList.add('error');
-    resultado.textContent = mensaje;
+    resultado.textContent = mensajeError;
     resultadoSection.classList.remove('hidden');
     btnCopiar.classList.add('hidden');
+    btnUsarResultado.classList.add('hidden');
     resultadoTitle.textContent = '❌ Error';
     
-    // Scroll suave al resultado
     resultadoSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// Mostrar resultado
 function mostrarResultado(texto, tipo) {
     resultado.classList.remove('error');
     resultado.textContent = `✅ ${texto}`;
+    resultado.setAttribute('data-resultado', texto);
     resultadoSection.classList.remove('hidden');
     btnCopiar.classList.remove('hidden');
+    btnUsarResultado.classList.remove('hidden');
     
-    // Cambiar el título según el tipo
     if (tipo === 'encriptación') {
         resultadoTitle.textContent = '🔒 Mensaje Encriptado';
+        btnUsarResultado.textContent = '🔓 Desencriptar este resultado';
     } else if (tipo === 'desencriptación') {
         resultadoTitle.textContent = '🔓 Mensaje Desencriptado';
+        btnUsarResultado.textContent = '🔒 Encriptar este resultado';
     }
     
-    // Scroll suave al resultado
     resultadoSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     
-    // Animación de éxito
     resultado.style.animation = 'none';
     setTimeout(() => {
         resultado.style.animation = 'fadeInUp 0.5s ease-out';
     }, 10);
 }
 
-// Funcionalidad de copiar
+// Copiar resultado
 btnCopiar.addEventListener('click', () => {
-    const texto = resultado.textContent.replace('✅ ', '');
+    const texto = resultado.getAttribute('data-resultado');
     
     navigator.clipboard.writeText(texto).then(() => {
-        // Cambiar texto del botón temporalmente
         const textoOriginal = btnCopiar.textContent;
         btnCopiar.textContent = '✅ ¡Copiado!';
         btnCopiar.style.background = '#059669';
@@ -316,6 +297,24 @@ btnCopiar.addEventListener('click', () => {
     }).catch(() => {
         alert('No se pudo copiar el texto');
     });
+});
+
+// Usar resultado como nueva entrada
+btnUsarResultado.addEventListener('click', () => {
+    const textoResultado = resultado.getAttribute('data-resultado');
+    if (textoResultado) {
+        mensaje.value = textoResultado;
+        mensaje.dispatchEvent(new Event('input'));
+        
+        mensaje.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        mensaje.focus();
+        
+        const textoOriginal = btnUsarResultado.textContent;
+        btnUsarResultado.textContent = '✅ ¡Texto copiado al campo!';
+        setTimeout(() => {
+            btnUsarResultado.textContent = textoOriginal;
+        }, 2000);
+    }
 });
 
 // Permitir Enter para encriptar

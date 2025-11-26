@@ -128,6 +128,21 @@ body {
     font-weight: 600;
 }
 
+/* Info Box de Advertencia */
+.info-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #856404;
+}
+
+.info-box strong {
+    color: #856404;
+}
+
 /* Cards */
 .card {
     background: var(--card-bg);
@@ -422,6 +437,34 @@ textarea:focus {
 }
 
 .btn-copiar.hidden {
+    display: none;
+}
+
+.resultado-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-usar {
+    padding: 12px;
+    background: #06b6d4;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-usar:hover {
+    background: #0891b2;
+    transform: translateY(-2px);
+}
+
+.btn-usar.hidden {
     display: none;
 }
 
