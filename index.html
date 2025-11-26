@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Encriptación Hill - Cifrado Matricial</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">🔐</div>
+            <h1>Encriptación Hill</h1>
+            <p class="subtitle">Cifrado Matricial Moderno</p>
+        </header>
+
+        <div class="info-card">
+            <div class="info-item">
+                <span class="label">📚 Materia:</span>
+                <span class="value">Fundamentos de Álgebra</span>
+            </div>
+            <div class="info-item">
+                <span class="label">👨‍🏫 Profesor:</span>
+                <span class="value">Jorge Javier Pedrozo</span>
+            </div>
+            <div class="info-item">
+                <span class="label">🎓 Estudiante:</span>
+                <span class="value">Carlos A. Llanes</span>
+            </div>
+            <div class="info-item">
+                <span class="label">👨‍💻 Grupo y escuela:</span>
+                <span class="value">1C - Tecnológico de Software</span>
+            </div>
+        </div>
+        
+        <div class="section card">
+            <div class="section-header">
+                <h3>💬 Mensaje a Encriptar</h3>
+            </div>
+            <label for="mensaje" class="input-label">Ingresa tu mensaje (máximo 30 caracteres)</label>
+            <textarea id="mensaje" maxlength="30" placeholder="Escribe aquí tu mensaje secreto..."></textarea>
+            <div class="char-count">
+                <span id="charCounter">0</span>/30 caracteres
+            </div>
+        </div>
+
+        <div class="section card">
+            <div class="section-header">
+                <h3>📊 Matriz del Mensaje</h3>
+                <span class="info-icon" title="Representación numérica del mensaje">ℹ️</span>
+            </div>
+            <div id="matrizMensaje" class="matriz-display">
+                <p class="placeholder-text">La matriz aparecerá aquí cuando escribas un mensaje</p>
+            </div>
+        </div>
+
+        <div class="section card">
+            <div class="section-header">
+                <h3>🔑 Matriz Clave (2×2)</h3>
+                <span class="info-icon" title="Ingresa los valores de la matriz de encriptación">ℹ️</span>
+            </div>
+            <div class="matriz-wrapper">
+                <div class="bracket left">[</div>
+                <div class="matriz-input">
+                    <input type="number" id="k11" placeholder="a" value="3">
+                    <input type="number" id="k12" placeholder="b" value="3">
+                    <input type="number" id="k21" placeholder="c" value="2">
+                    <input type="number" id="k22" placeholder="d" value="5">
+                </div>
+                <div class="bracket right">]</div>
+            </div>
+            <p class="hint">💡 Valores predeterminados: matriz invertible módulo 26</p>
+        </div>
+
+        <div class="buttons-container">
+            <button id="encriptar" class="btn-action btn-encriptar">
+                <span class="btn-icon">🔒</span>
+                <span>Encriptar</span>
+                <span class="btn-arrow">→</span>
+            </button>
+            
+            <button id="desencriptar" class="btn-action btn-desencriptar">
+                <span class="btn-icon">🔓</span>
+                <span>Desencriptar</span>
+                <span class="btn-arrow">→</span>
+            </button>
+        </div>
+
+        <div class="section card resultado-section hidden" id="resultadoSection">
+            <div class="section-header">
+                <h3 id="resultadoTitle">✨ Resultado</h3>
+            </div>
+            <div id="resultado" class="resultado-box"></div>
+            <button id="copiar" class="btn-copiar hidden">
+                📋 Copiar Resultado
+            </button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Desarrollado con 💚 para Fundamentos de Álgebra</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
