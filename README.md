@@ -1,1 +1,757 @@
-# ultima-tarea
+# Proyecto: Encriptación y Desencriptación de Mensajes
+
+**Escuela:** Tecnológico de Software  
+**Nombre:** Carlos Alfonso Llanes  
+**Materia:** Fundamentos de Álgebra  
+**Mtro:** Jorge Javier Pedrozo  
+**Fecha:** 26/11/2025  
+**Grupo:** 1C
+
+---
+
+## Objetivo
+Dejar documentado el proceso de realización de un programa para encriptar y desencriptar mensajes.
+
+---
+
+## Implementación — Funcionalidad para encriptar
+
+```javascript
+// Función de encriptación
+function encriptarMensaje() {
+    const key = [
+        [parseInt(k11.value) || 0, parseInt(k12.value) || 0],
+        [parseInt(k21.value) || 0, parseInt(k22.value) || 0]
+    ];
+
+    if (key[0][0] === 0 && key[0][1] === 0 && key[1][0] === 0 && key[1][1] === 0) {
+        mostrarError('⚠️ Error: Ingresa una matriz clave válida');
+        return;
+    }
+
+    const texto = mensaje.value.toUpperCase().replace(/[^A-Z]/g, '');
+
+    if (texto.length === 0) {
+        mostrarError('⚠️ Error: Ingresa un mensaje para encriptar');
+        return;
+    }
+
+    const det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
+
+    if (det === 0) {
+        mostrarError('⚠️ Error: La matriz no es invertible (determinante = 0 mod 26)');
+        return;
+    }
+
+    let numeros = texto.split('').map(char => char.charCodeAt(0) - 65);
+
+    if (numeros.length % 2 !== 0) {
+        numeros.push(23);
+    }
+
+    let encriptado = '';
+    for (let i = 0; i < numeros.length; i += 2) {
+        const v1 = numeros[i];
+        const v2 = numeros[i + 1];
+
+        let c1 = (key[0][0] * v1 + key[0][1] * v2);
+        let c2 = (key[1][0] * v1 + key[1][1] * v2);
+
+        c1 = ((c1 % 26) + 26) % 26;
+        c2 = ((c2 % 26) + 26) % 26;
+
+        encriptado += String.fromCharCode(65 + c1);
+        encriptado += String.fromCharCode(65 + c2);
+    }
+
+    mostrarResultado(encriptado, 'encriptación');
+}
+```
+
+---
+
+## Implementación — Funcionalidad para desencriptar
+
+```javascript
+// Función de desencriptación
+function desencriptarMensaje() {
+    const key = [
+        [parseInt(k11.value) || 0, parseInt(k12.value) || 0],
+        [parseInt(k21.value) || 0, parseInt(k22.value) || 0]
+    ];
+
+    if (key[0][0] === 0 && key[0][1] === 0 && key[1][0] === 0 && key[1][1] === 0) {
+        mostrarError('⚠️ Error: Ingresa una matriz clave válida');
+        return;
+    }
+
+    const texto = mensaje.value.toUpperCase().replace(/[^A-Z]/g, '');
+
+    if (texto.length === 0) {
+        mostrarError('⚠️ Error: Ingresa un mensaje para desencriptar');
+        return;
+    }
+
+    const det = ((key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26 + 26) % 26;
+
+    if (det === 0) {
+        mostrarError('⚠️ Error: La matriz no es invertible (determinante = 0 mod 26)');
+        return;
+    }
+
+    const keyInv = matrizInversa(key);
+
+    if (keyInv === null) {
+        mostrarError('⚠️ Error: No se puede calcular la matriz inversa');
+        return;
+    }
+
+    let numeros = texto.split('').map(char => char.charCodeAt(0) - 65);
+
+    if (numeros.length % 2 !== 0) {
+        numeros.push(23);
+    }
+
+    let desencriptado = '';
+    for (let i = 0; i < numeros.length; i += 2) {
+        const c1 = numeros[i];
+        const c2 = numeros[i + 1];
+
+        let v1 = (keyInv[0][0] * c1 + keyInv[0][1] * c2);
+        let v2 = (keyInv[1][0] * c1 + keyInv[1][1] * c2);
+
+        v1 = ((v1 % 26) + 26) % 26;
+        v2 = ((v2 % 26) + 26) % 26;
+
+        desencriptado += String.fromCharCode(65 + v1);
+        desencriptado += String.fromCharCode(65 + v2);
+    }
+
+    mostrarResultado(desencriptado, 'desencriptación');
+}
+```
+
+---
+
+## Mejoras de interfaz (CSS)
+
+```css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary-color: #ec4899;
+    --success-color: #10b981;
+    --background: #0f172a;
+    --background-light: #1e293b;
+    --card-bg: #1e293b;
+    --card-hover: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --glow: rgba(99, 102, 241, 0.4);
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Animación de fondo */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+    animation: pulse 15s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.logo {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    animation: rotate 10s linear infinite;
+    display: inline-block;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    text-shadow: 0 0 30px var(--glow);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+/* Info Card */
+.info-card {
+    background: linear-gradient(135deg, var(--card-bg), var(--background-light));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    box-shadow: 0 10px 30px var(--shadow);
+    animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-item .label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+.info-item .value {
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Info Box de Advertencia */
+.info-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #856404;
+}
+
+.info-box strong {
+    color: #856404;
+}
+
+/* Cards */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px var(--shadow);
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.8s ease-out backwards;
+    position: relative;
+}
+
+.section {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.card:nth-child(1) { animation-delay: 0.3s; }
+.card:nth-child(2) { animation-delay: 0.4s; }
+.card:nth-child(3) { animation-delay: 0.5s; }
+.card:nth-child(4) { animation-delay: 0.6s; }
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px var(--shadow);
+    border-color: var(--primary-color);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.info-icon {
+    font-size: 1.2rem;
+    cursor: help;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.info-icon:hover {
+    opacity: 1;
+}
+
+/* Input styles */
+.input-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--background-light);
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--glow);
+}
+
+.char-count {
+    text-align: right;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+#charCounter {
+    font-weight: 600;
+    color: var(--primary-light);
+}
+
+/* Matriz styles */
+.matriz-display {
+    background: var(--background-light);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.placeholder-text {
+    color: var(--text-muted);
+    font-style: italic;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+}
+
+.matriz-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.bracket {
+    font-size: 4rem;
+    color: var(--primary-light);
+    font-weight: 300;
+    line-height: 1;
+}
+
+.matriz-input {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 10px;
+}
+
+.matriz-input input {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--background-light);
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.matriz-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--glow);
+    transform: scale(1.05);
+}
+
+.matriz-input input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.hint {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 15px;
+    font-style: italic;
+}
+
+/* Buttons Container */
+.buttons-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    animation: fadeInUp 0.8s ease-out 0.7s backwards;
+}
+
+@media (max-width: 600px) {
+    .buttons-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Button */
+.btn-action {
+    padding: 18px 30px;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-encriptar {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.btn-encriptar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+}
+
+.btn-desencriptar {
+    background: linear-gradient(135deg, var(--success-color), #06b6d4);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+.btn-desencriptar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
+}
+
+.btn-action:active {
+    transform: translateY(-1px);
+}
+
+.btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 1.5rem;
+}
+
+.btn-arrow {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-encriptar:hover .btn-arrow {
+    transform: translateX(5px);
+}
+
+/* Resultado */
+.resultado-section {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.resultado-section.hidden {
+    display: none;
+}
+
+.resultado-box {
+    background: var(--background-light);
+    border: 2px solid var(--success-color);
+    border-radius: 12px;
+    padding: 25px;
+    min-height: 80px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--success-color);
+    text-align: center;
+    word-break: break-all;
+    letter-spacing: 2px;
+}
+
+.btn-copiar {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copiar:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-copiar.hidden {
+    display: none;
+}
+
+.resultado-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-usar {
+    padding: 12px;
+    background: #06b6d4;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-usar:hover {
+    background: #0891b2;
+    transform: translateY(-2px);
+}
+
+.btn-usar.hidden {
+    display: none;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    animation: fadeIn 1s ease-out 1s backwards;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .info-card {
+        grid-template-columns: 1fr;
+    }
+
+    .matriz-input input {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+
+    .bracket {
+        font-size: 3rem;
+    }
+}
+
+/* Efectos adicionales */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 20px 20px 0 0;
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.resultado-box.error {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+```
+
+---
+
+## Instrucciones de uso
+
+Para usar el encriptado basta con escribir el mensaje original y picarle en **Encriptar**.  
+Para usar el desencriptado se debe copiar y pegar el mensaje encriptado y luego picarle en **Desencriptar**.
+
+---
+
+## ¿Cómo se desencripta?
+### (Clave, alfabeto, módulo y matriz inversa)
+
+### 1. El alfabeto
+El alfabeto es la base para convertir letras en números.  
+Por ejemplo, si usas:  
+A = 0, B = 1, C = 2, …, Z = 25  
+Entonces cualquier palabra puede convertirse en números.  
+Ejemplo:  
+"CAT" → 2, 0, 19  
+El alfabeto define cuántos números hay. Normalmente son 26 letras, por eso después se usa módulo 26.
+
+---
+
+### 2. La clave
+En cifrados como Hill, la clave es una matriz.  
+Ejemplo de clave:
+
+```
+K = |3  3|
+    |2  5|
+```
+
+Esta matriz se usa en la encriptación multiplicando:  
+Cifrado = K · Mensaje  (mod 26)
+
+Para desencriptar, necesitas la matriz inversa de la clave.
+
+---
+
+### 3. El módulo
+El módulo se usa porque trabajamos “dentro del alfabeto”.  
+Si el alfabeto tiene 26 letras, entonces siempre hacemos: mod 26  
+Esto asegura que todos los resultados regresen a un número entre 0 y 25.
+
+---
+
+### 4. La matriz inversa
+Para desencriptar, necesitas la matriz inversa de la clave, pero no la inversa normal:  
+La inversa mod 26.  
+Es decir, una matriz \(K^{-1}\) tal que:  
+\(K^{-1} \cdot K \equiv I \pmod{26}\)
+
+Luego, para desencriptar:  
+Mensaje = \(K^{-1}\) · Cifrado (mod 26)
+
+---
+
+## Proceso completo de desencriptación
+
+1. Convertir el texto cifrado a números según el alfabeto.  
+2. Agruparlos en vectores del tamaño de la matriz clave.  
+3. Calcular o usar la matriz inversa de la clave (mod 26).  
+4. Multiplicar la matriz inversa por los vectores cifrados.  
+5. Aplicar módulo 26.  
+6. Convertir los números resultantes de nuevo a letras.
+
+---
